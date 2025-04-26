@@ -7,6 +7,7 @@ cryptography==42.0.0
 dotenv
 email-validator==2.0.0
 Flask==3.0.2
+gunicorn==21.2.0
 Flask-Limiter
 Flask-SQLAlchemy==3.1.1
 idna==3.6
