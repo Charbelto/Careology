@@ -1,0 +1,298 @@
+{% block header %}
+<header class="header">
+    <div class="header-content">
+        <a href="/" class="logo">
+            <i class="fas fa-car"></i>
+            Careology
+        </a>
+        
+        <nav class="header-nav">
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/cars">Browse Cars</a></li>
+                <li><a href="/about">About Us</a></li>
+                <li><a href="/contact">Contact</a></li>
+            </ul>
+        </nav>
+
+        <div class="header-actions">
+            {% if user %}
+                <a href="/profile" class="btn btn-ghost">
+                    <i class="fas fa-user"></i>
+                    {{ user.name }}
+                </a>
+                <a href="/logout" class="btn btn-ghost">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            {% else %}
+                <a href="/login" class="btn btn-ghost">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+                <a href="/register" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Register
+                </a>
+            {% endif %}
+            
+            <select class="language-select">
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="ar">العربية</option>
+            </select>
+        </div>
+    </div>
+</header>
+{% endblock %}
+
+<script>
+    const chatbotBtn = document.getElementById('chatbotBtn');
+    const chatbotInterface = document.getElementById('chatbotInterface');
+    const closeChatBtn = document.getElementById('closeChatBtn');
+
+    chatbotBtn.addEventListener('click', function() {
+        chatbotInterface.style.display = 'flex';
+    });
+
+    closeChatBtn.addEventListener('click', function() {
+        chatbotInterface.style.display = 'none';
+    });
+</script>
+
+<style>
+/* Existing styles */
+.header {
+    background: var(--primary);
+    padding: var(--space-md);
+    color: white;
+}
+
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.profile-container:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    color: white;
+}
+
+.profile-picture {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+}
+
+.profile-edit-badge {
+    font-size: 0.8rem;
+    padding: var(--space-xs) var(--space-sm);
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+}
+
+.admin-link {
+    display: inline-block;
+    padding: var(--space-sm) var(--space-lg);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    margin-right: var(--space-md);
+    transition: all 0.2s ease;
+}
+
+.admin-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    color: white;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.auth-buttons button {
+    padding: var(--space-sm) var(--space-lg);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: transparent;
+    color: white;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.auth-buttons button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+.inbox-wrapper {
+    position: relative;
+    margin: 0 var(--space-md);
+}
+
+.inbox-button {
+    position: relative;
+    padding: var(--space-sm) var(--space-lg);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.inbox-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+.message-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--error);
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+}
+
+.language-selector select {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: white;
+    padding: var(--space-sm) var(--space-lg);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.language-selector select:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+}
+
+.language-selector select option {
+    background: var(--primary);
+    color: white;
+}
+
+/* Chatbot styles */
+.chatbot-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: var(--secondary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.chatbot-interface {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 350px;
+    height: 400px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.chatbot-header {
+    background-color: var(--primary);
+    color: white;
+    padding: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.close-chat {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.chat-messages {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.chat-input {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    display: flex;
+}
+
+.chat-input input[type="text"] {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+.chat-input button {
+    background-color: var(--secondary);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.chat-message {
+    padding: 8px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+}
+
+.chat-message.user {
+    background-color: #e2f7cb;
+    text-align: right;
+}
+
+.chat-message.bot {
+    background-color: #f0f0f0;
+    text-align: left;
+}
+</style>

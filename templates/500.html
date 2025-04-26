@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - Careology{% endblock %}
+
+{% block content %}
+<div class="container text-center" style="padding: 50px 15px;">
+    <i class="fas fa-exclamation-triangle fa-5x" style="color: #dc3545; margin-bottom: 20px;"></i>
+    <h1>500 - Internal Server Error</h1>
+    <p class="lead" style="margin-bottom: 30px;">
+        Oops! Something went wrong on our end. We're working to fix it.
+    </p>
+    <p>
+        Please try refreshing the page or come back later.
+    </p>
+    <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top: 20px;">Go Back Home</a>
+</div>
+{% endblock %}

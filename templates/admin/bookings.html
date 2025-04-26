@@ -1,0 +1,127 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Bookings{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Bookings Management</h1>
+    </div>
+
+    <div class="table-container">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Customer</th>
+                    <th>Car</th>
+                    <th>Dates</th>
+                    <th>Total Price</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>#{{ booking.id }}</td>
+                    <td>
+                        <div>{{ booking.customer_name }}</div>
+                        <small class="text-muted">{{ booking.customer_email }}</small><br>
+                        <small class="text-muted">{{ booking.customer_phone }}</small>
+                    </td>
+                    <td>
+                        {% set car = get_cars().get(booking.car_id) %}
+                        {% if car %}
+                            {{ car.title }}
+                        {% else %}
+                            Car #{{ booking.car_id }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div>From: {{ booking.start_date }}</div>
+                        <div>To: {{ booking.end_date }}</div>
+                    </td>
+                    <td>${{ "%.2f"|format(booking.total_price) }}</td>
+                    <td>
+                        <span class="badge bg-{{ 'success' if booking.status == 'confirmed' else 'warning' }}">
+                            {{ booking.status|title }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ 'success' if booking.payment_status == 'paid' else 'warning' }}">
+                            {{ booking.payment_status|title }}
+                        </span>
+                    </td>
+                    <td>{{ booking.created_at|datetime }}</td>
+                    <td>
+                        <div class="btn-group">
+                            {% if booking.status != 'confirmed' %}
+                            <button type="button" class="btn btn-sm btn-success" onclick="confirmBooking({{ booking.id }})">
+                                Confirm
+                            </button>
+                            {% endif %}
+                            <button type="button" class="btn btn-sm btn-danger" onclick="cancelBooking({{ booking.id }})">
+                                Cancel
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmBooking(bookingId) {
+    if (confirm('Are you sure you want to confirm this booking?')) {
+        fetch(`/booking/${bookingId}/confirm`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to confirm booking');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to confirm booking');
+        });
+    }
+}
+
+function cancelBooking(bookingId) {
+    if (confirm('Are you sure you want to cancel this booking?')) {
+        fetch(`/booking/${bookingId}/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to cancel booking');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to cancel booking');
+        });
+    }
+}
+</script>
+{% endblock %} 

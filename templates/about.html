@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - Careology{% endblock %}
+
+{% block content %}
+<div class="container about-container">
+    <h1>About Careology</h1>
+    <section class="about-section">
+        <h2>Our Mission</h2>
+        <p>At Careology, our mission is to revolutionize the car buying and rental experience in Lebanon by providing a transparent, customer-centric, and technology-driven platform. We strive to connect people with their ideal vehicles, whether for purchase or rental, with ease and confidence.</p>
+    </section>
+    <section class="about-section">
+        <h2>Our Vision</h2>
+        <p>We envision a future where everyone can access reliable, affordable, and high-quality vehicles with just a few clicks. Our commitment is to innovation, integrity, and exceptional service.</p>
+    </section>
+    <section class="about-section">
+        <h2>Who We Are</h2>
+        <p>Careology was founded by a passionate team of automotive enthusiasts and technology experts. With years of experience in the car industry and digital solutions, we understand the challenges customers face and are dedicated to making the process seamless and enjoyable.</p>
+    </section>
+    <section class="about-section team-section">
+        <h2>Meet the Team</h2>
+        <div class="team-grid">
+            <div class="team-member">
+                <div class="team-photo" style="font-size:48px;display:flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:50%;background:#f0f0f0;margin:0 auto 0.7rem auto;">🚗</div>
+                <h3>Charbel</h3>
+                <p>Founder & CEO</p>
+            </div>
+            <div class="team-member">
+                <div class="team-photo" style="font-size:48px;display:flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:50%;background:#f0f0f0;margin:0 auto 0.7rem auto;">🚗</div>
+                <h3>Elias</h3>
+                <p>Head of Operations</p>
+            </div>
+            <div class="team-member">
+                <div class="team-photo" style="font-size:48px;display:flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:50%;background:#f0f0f0;margin:0 auto 0.7rem auto;">🚗</div>
+                <h3>Ibrahim</h3>
+                <p>Tech Lead</p>
+            </div>
+        </div>
+    </section>
+    <section class="about-section testimonials-section">
+        <h2>What Our Customers Say</h2>
+        <div class="testimonials-grid">
+            <div class="testimonial">
+                <p>"Careology made it so easy to find and rent the perfect car for my trip. Highly recommended!"</p>
+                <span>- Sarah K.</span>
+            </div>
+            <div class="testimonial">
+                <p>"Professional team, great selection, and excellent service. I found my dream car thanks to Careology."</p>
+                <span>- Ahmad D.</span>
+            </div>
+        </div>
+    </section>
+    <section class="about-section contact-section">
+        <h2>Contact Us</h2>
+        <p>Have questions or want to partner with us? <a href="{{ url_for('contact') }}">Get in touch</a> and our team will be happy to assist you.</p>
+    </section>
+</div>
+<style>
+.about-container { max-width: 900px; margin: 0 auto; padding: 2rem 0; }
+.about-section { margin-bottom: 2.5rem; }
+.team-grid { display: flex; gap: 2rem; flex-wrap: wrap; }
+.team-member { text-align: center; flex: 1 1 180px; }
+.team-photo { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 0.7rem; }
+.testimonials-grid { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.testimonial { background: #f8f9fa; border-radius: 8px; padding: 1.2rem; flex: 1 1 250px; font-style: italic; }
+.testimonial span { display: block; margin-top: 0.7rem; font-weight: 500; color: #007bff; }
+</style>
+{% endblock %}

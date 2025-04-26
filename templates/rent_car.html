@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="rental-page">
+    <div class="rental-content">
+        <div class="car-preview">
+            <img src="{{ car.images[0] }}" alt="{{ car.title }}" class="car-image">
+            <div class="car-info">
+                <h2>{{ car.title }}</h2>
+                <p class="rental-price">${{ car.rental_price_per_day }} per day</p>
+                <div class="key-details">
+                    <div class="detail-item">
+                        <span class="label">Year:</span>
+                        <span class="value">{{ car.year }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Transmission:</span>
+                        <span class="value">{{ car.transmission }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Fuel Type:</span>
+                        <span class="value">{{ car.fuel_type }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="booking-form">
+            <h3>Book Your Rental</h3>
+            <form id="rentalForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="start_date">Pick-up Date</label>
+                    <input type="date" id="start_date" name="start_date" required min="{{ today }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="end_date">Return Date</label>
+                    <input type="date" id="end_date" name="end_date" required min="{{ today }}">
+                </div>
+
+                <div id="availability-info" class="hidden">
+                    <div class="rental-summary">
+                        <h4>Rental Summary</h4>
+                        <p>Duration: <span id="rental-days">0</span> days</p>
+                        <p>Total Price: $<span id="total-price">0</span></p>
+                    </div>
+                </div>
+
+                <button type="button" id="check-availability" class="primary">Check Availability</button>
+
+                <div id="booking-details" class="hidden">
+                    <h4>Personal Information</h4>
+                    <div class="form-group">
+                        <label for="customer_name">Full Name</label>
+                        <input type="text" id="customer_name" name="customer_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customer_email">Email</label>
+                        <input type="email" id="customer_email" name="customer_email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customer_phone">Phone</label>
+                        <input type="tel" id="customer_phone" name="customer_phone" required>
+                    </div>
+
+                    <div class="payment-section">
+                        <h4>Payment Information</h4>
+                        <div class="form-group">
+                            <label for="card_number">Card Number</label>
+                            <input type="text" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expiry_date">Expiry Date</label>
+                                <input type="text" id="expiry_date" name="expiry_date" placeholder="MM/YY" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cvv">CVV</label>
+                                <input type="text" id="cvv" name="cvv" placeholder="123" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="confirm-booking" class="primary">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.rental-page {
+    padding: var(--space-lg);
+    background: var(--background);
+    min-height: calc(100vh - 60px);
+}
+
+.rental-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+}
+
+.car-preview {
+    background: white;
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.car-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+}
+
+.car-info h2 {
+    margin-bottom: var(--space-sm);
+}
+
+.rental-price {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: var(--space-md);
+}
+
+.key-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.label {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.booking-form {
+    background: white;
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.form-group {
+    margin-bottom: var(--space-md);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-md);
+}
+
+.rental-summary {
+    background: var(--background);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin: var(--space-md) 0;
+}
+
+.hidden {
+    display: none;
+}
+
+button {
+    width: 100%;
+    margin-top: var(--space-md);
+}
+
+.payment-section {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border);
+}
+
+@media (max-width: 768px) {
+    .rental-content {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('rentalForm');
+    const startDate = document.getElementById('start_date');
+    const endDate = document.getElementById('end_date');
+    const checkAvailabilityBtn = document.getElementById('check-availability');
+    const availabilityInfo = document.getElementById('availability-info');
+    const bookingDetails = document.getElementById('booking-details');
+    const confirmBookingBtn = document.getElementById('confirm-booking');
+    const rentalDays = document.getElementById('rental-days');
+    const totalPrice = document.getElementById('total-price');
+
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    startDate.min = today;
+    endDate.min = today;
+
+    startDate.addEventListener('change', function() {
+        endDate.min = this.value;
+    });
+
+    checkAvailabilityBtn.addEventListener('click', async function() {
+        if (!startDate.value || !endDate.value) {
+            alert('Please select both pickup and return dates');
+            return;
+        }
+
+        try {
+            const response = await fetch('/car/{{ car.id }}/check-availability', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    start_date: startDate.value,
+                    end_date: endDate.value
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.available) {
+                rentalDays.textContent = data.days;
+                totalPrice.textContent = data.total_price;
+                availabilityInfo.classList.remove('hidden');
+                bookingDetails.classList.remove('hidden');
+                checkAvailabilityBtn.classList.add('hidden');
+            } else {
+                alert(data.message || 'Car is not available for the selected dates');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while checking availability');
+        }
+    });
+
+    confirmBookingBtn.addEventListener('click', async function() {
+        if (!form.checkValidity()) {
+            alert('Please fill in all required fields');
+            return;
+        }
+
+        try {
+            // First create the booking
+            const bookingResponse = await fetch('/car/{{ car.id }}/book', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    start_date: startDate.value,
+                    end_date: endDate.value,
+                    total_price: totalPrice.textContent,
+                    customer_name: document.getElementById('customer_name').value,
+                    customer_email: document.getElementById('customer_email').value,
+                    customer_phone: document.getElementById('customer_phone').value
+                })
+            });
+
+            const bookingData = await bookingResponse.json();
+            
+            if (bookingData.success) {
+                // Then process the payment
+                const paymentResponse = await fetch(`/booking/${bookingData.booking_id}/confirm`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        card_number: document.getElementById('card_number').value,
+                        expiry_date: document.getElementById('expiry_date').value,
+                        cvv: document.getElementById('cvv').value
+                    })
+                });
+
+                const paymentData = await paymentResponse.json();
+                
+                if (paymentData.success) {
+                    alert('Booking confirmed successfully! You will receive a confirmation email shortly.');
+                    window.location.href = '/';
+                } else {
+                    alert(paymentData.error || 'Payment processing failed');
+                }
+            } else {
+                alert(bookingData.error || 'Failed to create booking');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while processing your booking');
+        }
+    });
+});
+</script>
+{% endblock %} 

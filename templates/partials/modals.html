@@ -1,0 +1,94 @@
+<!-- Authentication Modals -->
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Login</h2>
+        <form id="loginForm" method="post" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn primary">Login</button>
+        </form>
+    </div>
+</div>
+
+<div id="signupModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Sign Up</h2>
+        <form id="signupForm" method="post" action="{{ url_for('register') }}">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn primary">Sign Up</button>
+        </form>
+    </div>
+</div>
+
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div class="profile-header">
+            <div class="profile-picture-container">
+                <img src="{{ url_for('static', filename=user.profile_picture) if user else 'images/default-profile.png' }}" alt="Profile picture" class="profile-picture">
+            </div>
+            <div class="profile-info">
+                <h2>{{ user.name if user else 'Guest' }}</h2>
+                <p class="email">{{ user.email if user else '' }}</p>
+                {% if user %}
+                <p class="member-since">Member since {{ user.created_at.strftime('%B %Y') }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% if user %}
+        <div class="profile-sections">
+            <section class="profile-section">
+                <h3>Personal Information</h3>
+                <div class="info-grid">
+                    {% if user.phone %}
+                    <div class="info-item">
+                        <span class="label">Phone</span>
+                        <span class="value">{{ user.phone }}</span>
+                    </div>
+                    {% endif %}
+                    {% if user.address %}
+                    <div class="info-item">
+                        <span class="label">Address</span>
+                        <span class="value">{{ user.address }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Messages Modal -->
+<div id="inboxModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Messages</h2>
+        <div class="messages-container">
+            <div class="message-list" id="messageList">
+                <!-- Messages will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chatbot will be reimplemented -->

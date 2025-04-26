@@ -1,0 +1,178 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Analytics Reports{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3">Analytics Reports</h1>
+        </div>
+    </div>
+
+    <!-- User Activity Report -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">User Activity Report</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="metric">
+                        <span class="metric-label">Total Actions</span>
+                        <span class="metric-value">{{ reports.user_activity.total_actions }}</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric">
+                        <span class="metric-label">Unique Users</span>
+                        <span class="metric-value">{{ reports.user_activity.unique_users }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h6>Most Common Actions</h6>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Count</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for action in reports.user_activity.most_common_actions %}
+                                <tr>
+                                    <td>{{ action.action }}</td>
+                                    <td>{{ action.count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6>Activity by Day</h6>
+                    <canvas id="activityByDayChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Platform Performance Report -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Platform Performance Report</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="metric">
+                        <span class="metric-label">Average Response Time</span>
+                        <span class="metric-value">{{ reports.platform_performance.average_response_time }}ms</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric">
+                        <span class="metric-label">Error Rate</span>
+                        <span class="metric-value">{{ reports.platform_performance.error_rate }}%</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric">
+                        <span class="metric-label">Uptime</span>
+                        <span class="metric-value">{{ reports.platform_performance.uptime_percentage }}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Trends Report -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">User Trends Report</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="metric">
+                        <span class="metric-label">User Growth Rate</span>
+                        <span class="metric-value">{{ reports.user_trends.user_growth_rate }}%</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric">
+                        <span class="metric-label">Retention Rate</span>
+                        <span class="metric-value">{{ reports.user_trends.retention_rate }}%</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric">
+                        <span class="metric-label">Engagement Score</span>
+                        <span class="metric-value">{{ reports.user_trends.engagement_score }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Activity by Day Chart
+const activityCtx = document.getElementById('activityByDayChart').getContext('2d');
+new Chart(activityCtx, {
+    type: 'line',
+    data: {
+        labels: {{ reports.user_activity.activity_by_day|map(attribute='date')|list|tojson }},
+        datasets: [{
+            label: 'Daily Actions',
+            data: {{ reports.user_activity.activity_by_day|map(attribute='count')|list|tojson }},
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+<style>
+.metric {
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.metric-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #495057;
+}
+
+canvas {
+    min-height: 300px;
+}
+</style>
+{% endblock %} 

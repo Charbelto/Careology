@@ -1,0 +1,614 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+{# Add necessary styles for the filter dropdown and its components #}
+<style>
+    .search-filter-section {
+        margin-bottom: 1.5rem; /* Add some space below filters */
+    }
+    .filter-container {
+        position: relative; /* Needed for absolute positioning of dropdown */
+        display: inline-block; /* Keep button and dropdown together */
+    }
+    .filter-dropdown {
+        display: none; /* Hidden by default */
+        position: absolute;
+        top: 100%; /* Position below the filter button */
+        left: 0; /* Align with the left of the filter button */
+        background-color: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        z-index: 1000; /* Ensure it's above other content */
+        width: 300px; /* Adjust width as needed */
+        padding: 15px;
+        margin-top: 5px; /* Space below filter button */
+        max-height: 80vh; /* Limit height on smaller screens */
+        overflow-y: auto; /* Allow scrolling within dropdown if content overflows */
+    }
+    /* Style to show the dropdown when 'show' class is added by JS */
+    .filter-dropdown.show {
+        display: block;
+    }
+    .filter-section {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    .filter-section:last-of-type {
+        margin-bottom: 0;
+        border-bottom: none;
+    }
+    .filter-section h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+        font-weight: 600;
+        color: #333;
+    }
+    /* Styling for input fields within filters */
+    .filter-dropdown input[type="text"],
+    .filter-dropdown input[type="number"],
+    .filter-dropdown select {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box; /* Include padding and border in width */
+        margin-bottom: 5px;
+    }
+    .price-inputs {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .price-inputs input {
+        width: calc(50% - 10px); /* Adjust based on gap and span */
+    }
+    .price-inputs span {
+        color: #555;
+    }
+    /* Styling for checkbox/radio lists */
+    .filter-scrollable-list {
+        max-height: 180px; /* Limit height and make scrollable */
+        overflow-y: auto;
+        border: 1px solid #eee;
+        padding: 8px;
+        margin-top: 5px;
+        background-color: #fdfdfd;
+    }
+    .filter-item, .fuel-type-item {
+        display: block; /* Each item on its own line */
+        margin-bottom: 5px;
+        padding: 3px 0;
+        cursor: pointer;
+    }
+    .filter-item input[type="checkbox"],
+    .fuel-type-item input[type="radio"] {
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+     .filter-item span, .fuel-type-item span {
+         vertical-align: middle;
+         color: #444;
+    }
+    .filter-item:hover, .fuel-type-item:hover {
+        background-color: #f0f0f0;
+    }
+    /* Filter action buttons */
+    .filter-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+    }
+    /* Add base button styles if not defined globally */
+    .btn-primary, .btn-secondary {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    .btn-primary {
+        background-color: var(--primary-color, #007bff);
+        color: white;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+     /* Pagination Styles */
+    .pagination {
+        justify-content: center;
+        margin-top: 2rem;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        gap: 0.5rem; /* Add gap between page items */
+    }
+    .page-item .page-link {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #dee2e6;
+        color: var(--primary-color, #007bff); /* Use CSS variable or default */
+        text-decoration: none;
+        border-radius: 0.25rem;
+        transition: all 0.2s ease-in-out;
+        background-color: #fff; /* Ensure background for contrast */
+        display: block; /* Ensure link fills the item */
+    }
+    .page-item.active .page-link {
+        background-color: var(--primary-color, #007bff);
+        color: white;
+        border-color: var(--primary-color, #007bff);
+    }
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #e9ecef; /* Slightly different disabled background */
+        border-color: #dee2e6;
+    }
+    .page-item:not(.disabled) .page-link:hover {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: var(--primary-color-dark, #0056b3);
+    }
+    .page-item.active .page-link:hover {
+        background-color: var(--primary-color-dark, #0056b3); /* Use CSS variable or default */
+        border-color: var(--primary-color-dark, #0056b3);
+    }
+     /* No results styling */
+     .no-results {
+        grid-column: 1 / -1; /* Span all columns in the grid */
+        text-align: center;
+        padding: 40px 20px;
+        color: #6c757d; /* Muted text color */
+        background-color: #f8f9fa; /* Light background */
+        border-radius: 8px; /* Optional rounded corners */
+        margin-top: 20px; /* Add some space */
+    }
+    .no-results i {
+        font-size: 3em; /* Larger icon */
+        color: #ced4da; /* Lighter icon color */
+        margin-bottom: 15px;
+        display: block; /* Make icon block level */
+    }
+     .no-results p {
+         margin-bottom: 5px;
+         line-height: 1.5;
+     }
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="container">
+    <!-- Search Section -->
+    <div class="search-filter-section">
+        <div class="search-container">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search cars by name, brand, or location..." value="{{ search_query }}">
+                <button type="button" class="search-btn">Search</button>
+            </div>
+            <div class="filter-container">
+                <button type="button" class="filter-btn">
+                    <i class="fas fa-filter"></i>
+                    Filters
+                </button>
+                {# Filter Dropdown Area - Initially hidden via CSS #}
+                {# Filter Dropdown Area - Initially hidden via CSS #}
+                <div class="filter-dropdown"> {# This div should only appear ONCE #}
+
+                    {# Price Range #}
+                    <div class="filter-section">
+                        <h3>Price Range (USD)</h3>
+                        <div class="price-range">
+                            <div class="price-inputs">
+                                <input type="number" id="minPrice" placeholder="Min" min="0" value="{{ min_price }}">
+                                <span>to</span>
+                                <input type="number" id="maxPrice" placeholder="Max" min="0" value="{{ max_price }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Mileage Range #}
+                    <div class="filter-section">
+                        <h3>Mileage Range (km)</h3>
+                        <div class="mileage-range">
+                            <div class="price-inputs"> {# Reuse price input styling #}
+                                <input type="number" id="minMileage" placeholder="Min KM" min="0" value="{{ min_mileage }}">
+                                <span>to</span>
+                                <input type="number" id="maxMileage" placeholder="Max KM" min="0" value="{{ max_mileage }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Car Brand - Searchable Checkbox List #}
+                    <div class="filter-section">
+                        <h3>Car Brand</h3>
+                        <div class="brand-search">
+                            <input type="text" id="brandSearch" placeholder="Search brands...">
+                            <div class="brand-list filter-scrollable-list">
+                                {% for brand in brands %}
+                                <label class="brand-item filter-item">
+                                    <input type="checkbox" name="brand" value="{{ brand }}"
+                                           {% if brand in selected_brands %}checked{% endif %}>
+                                    <span>{{ brand }}</span>
+                                </label>
+                                {% else %}
+                                <p style="color: #888; font-style: italic; padding: 5px;">No brands found.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Location - Searchable Checkbox List #}
+                    <div class="filter-section">
+                        <h3>Location</h3>
+                        <div class="location-search">
+                            <input type="text" id="locationSearch" placeholder="Search locations...">
+                            <div class="location-list filter-scrollable-list">
+                                {% for location in locations %}
+                                <label class="location-item filter-item">
+                                    <input type="checkbox" name="location" value="{{ location }}"
+                                           {% if location in selected_locations %}checked{% endif %}>
+                                    <span>{{ location }}</span>
+                                </label>
+                                {% else %}
+                                <p style="color: #888; font-style: italic; padding: 5px;">No locations found.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Year (Single Select) #}
+                    <div class="filter-section">
+                        <h3>Year</h3>
+                        <div class="year-range">
+                            <select id="yearFilter" name="year">
+                                <option value="" {% if not selected_year %}selected{% endif %}>All Years</option>
+                                {% for year_opt in years %}
+                                <option value="{{ year_opt }}" {% if selected_year and year_opt|string == selected_year %}selected{% endif %}>
+                                    {{ year_opt }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    {# Fuel Type (Radio Buttons) #}
+                    <div class="filter-section">
+                        <h3>Fuel Type</h3>
+                        <div class="fuel-type-list">
+                            <label class="fuel-type-item filter-item">
+                                <input type="radio" name="fuel_type" value="" {% if not selected_fuel_type %}checked{% endif %}>
+                                <span>All</span>
+                            </label>
+                            {% for ft in fuel_types %}
+                            <label class="fuel-type-item filter-item">
+                                <input type="radio" name="fuel_type" value="{{ ft }}"
+                                       {% if ft == selected_fuel_type %}checked{% endif %}>
+                                <span>{{ ft }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {# Fuel/Electric Range (If needed, otherwise remove) #}
+                    <div class="filter-section">
+                        <h3>Est. Range (km)</h3>
+                        <div class="fuel-range">
+                             <div class="price-inputs">
+                                <input type="number" id="minRange" placeholder="Min KM" min="0" value="{{ min_range }}">
+                                <span>to</span>
+                                <input type="number" id="maxRange" placeholder="Max KM" min="0" value="{{ max_range }}">
+                            </div>
+                        </div>
+                        <small style="color: #777; font-size: 0.8em; display: block; margin-top: 5px;">(Primarily for Electric/Hybrid)</small>
+                    </div>
+
+                    {# Filter Actions #}
+                    <div class="filter-actions">
+                        <button type="button" class="clear-filters btn-secondary">Clear All</button>
+                        <button type="button" class="apply-filters btn-primary">Apply</button>
+                    </div>
+
+                </div> {# End .filter-dropdown #}
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Count -->
+    <div class="results-count">
+        <i class="fas fa-car"></i>
+        {% if pagination and pagination.total_cars is defined and pagination.total_cars > 0 %}
+             Showing {{ (pagination.current_page - 1) * pagination.per_page + 1 }} - {{ [pagination.current_page * pagination.per_page, pagination.total_cars]|min }} of {{ pagination.total_cars }} cars found
+        {% elif pagination and pagination.total_cars is defined and pagination.total_cars == 0 %}
+             No cars found matching your criteria.
+        {% else %}
+             Loading cars... {# Or some other placeholder #}
+        {% endif %}
+    </div>
+
+
+    <!-- Car Grid -->
+    <div class="car-grid">
+        {% if cars %}
+            {% for car in cars %}
+            <div class="car-card">
+                <div class="car-image">
+                  {% if car.image_url %}
+                    {% if car.image_url.startswith('http') %}
+                      <img src="{{ car.image_url }}" alt="{{ car.get('Car Name', 'Car image') }} image" loading="lazy" style="width:100%;height:180px;object-fit:cover;background:#eee;">
+                    {% else %}
+                       {# Assuming image_url is relative path within static if not http #}
+                      <img src="{{ url_for('static', filename=car.image_url) }}" alt="{{ car.get('Car Name', 'Car image') }} image" loading="lazy" style="width:100%;height:180px;object-fit:cover;background:#eee;">
+                    {% endif %}
+                  {% else %}
+                    {# Placeholder if no image_url #}
+                    <div class="placeholder-image" style="width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;border-bottom: 1px solid #ddd;">
+                      <i class="fas fa-image fa-2x" style="color:#ccc;"></i>
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="car-details">
+                    <h3 class="car-name">{{ car.get('Car Name', 'N/A') }}</h3>
+                    <div class="car-info">
+                        <span><i class="fas fa-calendar-alt"></i> {{ car.get('Year', 'N/A') }}</span>
+                        <span><i class="fas fa-tachometer-alt"></i> {{ car.get('mileage', 'N/A') }} km</span>
+                        <span><i class="fas fa-gas-pump"></i> {{ car.get('Fuel Type', 'N/A') }}</span>
+                    </div>
+                    <div class="car-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ car.get('Location', 'N/A') }}
+                    </div>
+                    <div class="car-price">
+                        <span class="price">USD {{ car.get('price', '0') | number_format }}</span>
+                        {% if car.get('rental_price_per_day') and car.get('rental_price_per_day')|string != '0' %}
+                        <span class="daily-rate">${{ car.get('rental_price_per_day') }}/day</span>
+                        {% endif %}
+                    </div>
+                    <div class="car-actions">
+                        <a href="{{ url_for('car_details', car_id=car.get('id')) }}" class="btn-details">
+                            <i class="fas fa-info-circle"></i>
+                            View Details
+                        </a>
+                        {% if car.get('source_url') and car.get('source_url') != '#' %}
+                        <a href="{{ car.get('source_url') }}" target="_blank" rel="noopener noreferrer" class="btn-source">
+                            <i class="fas fa-external-link-alt"></i>
+                            View Source
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+             {# Show 'No results' message centrally if cars list is empty #}
+             {% if pagination and pagination.total_cars is defined and pagination.total_cars == 0 %}
+                 <div class="no-results">
+                     <i class="fas fa-search fa-3x"></i>
+                     <p>No cars found matching your criteria.</p>
+                     <p>Try adjusting your search filters or try a different search term.</p>
+                 </div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination and pagination.total_pages is defined and pagination.total_pages > 1 %}
+    <nav aria-label="Car results navigation">
+        <ul class="pagination">
+
+            {# Previous Page Link #}
+            <li class="page-item {% if pagination.current_page == 1 %}disabled{% endif %}">
+                {% set prev_args = request.args.to_dict(flat=True) %}
+                {% set _ = prev_args.pop('page', None) %} {# Remove existing page arg #}
+                <a class="page-link" href="{{ url_for('index', page=(pagination.current_page - 1), **prev_args) }}" aria-label="Previous">
+                    <span aria-hidden="true">«</span> Previous
+                </a>
+            </li>
+
+            {# Page Number Links (Improved Ellipsis Logic) #}
+            {% set window = 2 %} {# Number of pages to show around current page #}
+            {% set start_page = [1, pagination.current_page - window]|max %}
+            {% set end_page = [pagination.total_pages, pagination.current_page + window]|min %}
+
+            {# Ellipsis if needed at the beginning #}
+            {% if start_page > 1 %}
+                {% set first_page_args = request.args.to_dict(flat=True) %}
+                {% set _ = first_page_args.pop('page', None) %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('index', page=1, **first_page_args) }}">1</a></li>
+                {% if start_page > 2 %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+            {% endif %}
+
+            {# Actual page numbers #}
+            {% for p in range(start_page, end_page + 1) %}
+            <li class="page-item {% if p == pagination.current_page %}active{% endif %}">
+                {# Build args for this specific page link #}
+                {% set current_args = request.args.to_dict(flat=True) %}
+                {% set _ = current_args.pop('page', None) %} {# Remove existing page arg #}
+                <a class="page-link" href="{{ url_for('index', page=p, **current_args) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+
+            {# Ellipsis if needed at the end #}
+            {% if end_page < pagination.total_pages %}
+                {% if end_page < pagination.total_pages - 1 %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+                {% set last_page_args = request.args.to_dict(flat=True) %}
+                {% set _ = last_page_args.pop('page', None) %}
+                 <li class="page-item"><a class="page-link" href="{{ url_for('index', page=pagination.total_pages, **last_page_args) }}">{{ pagination.total_pages }}</a></li>
+            {% endif %}
+
+            {# Next Page Link #}
+            <li class="page-item {% if pagination.current_page == pagination.total_pages %}disabled{% endif %}">
+                {% set next_args = request.args.to_dict(flat=True) %}
+                {% set _ = next_args.pop('page', None) %}
+                 <a class="page-link" href="{{ url_for('index', page=(pagination.current_page + 1), **next_args) }}" aria-label="Next">
+                    Next <span aria-hidden="true">»</span>
+                 </a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+</div> {# End .container #}
+
+{% endblock %}
+
+
+{% block extra_js %}
+{# Link Font Awesome if not already in base.html head, replace YOUR_KIT_ID or use CDN #}
+{# <script src="https://kit.fontawesome.com/YOUR_KIT_ID.js" crossorigin="anonymous"></script> #}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterBtn = document.querySelector('.filter-btn');
+    const filterDropdown = document.querySelector('.filter-dropdown');
+    const applyBtn = document.querySelector('.apply-filters');
+    const clearBtn = document.querySelector('.clear-filters');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.querySelector('.search-btn');
+
+    // --- Debug Log: Check if elements are found ---
+    console.log("Filter Button Element:", filterBtn);
+    console.log("Filter Dropdown Element:", filterDropdown);
+    // --- End Debug Log ---
+
+    // Toggle filter dropdown visibility
+    if (filterBtn && filterDropdown) {
+        console.log("Attaching click listener to Filter Button"); // Debug Log
+        filterBtn.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent click from immediately closing dropdown
+            console.log("Filter button clicked!"); // Debug Log
+            filterDropdown.classList.toggle('show'); // Use classList to toggle visibility
+            console.log("Dropdown 'show' class toggled. Has 'show' class:", filterDropdown.classList.contains('show')); // Debug Log
+        });
+        // Close dropdown if clicking outside
+        document.addEventListener('click', (event) => {
+            // Check if the click is outside the button AND outside the dropdown
+            if (!filterBtn.contains(event.target) && !filterDropdown.contains(event.target)) {
+                filterDropdown.classList.remove('show'); // Hide by removing class
+            }
+        });
+         // Prevent closing when clicking inside dropdown
+        filterDropdown.addEventListener('click', (event) => {
+             event.stopPropagation();
+        });
+    } else {
+         console.error("Filter button or filter dropdown element not found!"); // Error Log
+    }
+
+       // Function to gather filters and reload page
+    function applyAllFilters() {
+        const params = new URLSearchParams(); // Start fresh
+
+        // --- Get filter values ---
+        const searchVal = searchInput.value.trim();
+        if (searchVal) params.set('search', searchVal);
+
+        const minPrice = document.getElementById('minPrice').value.trim();
+        const maxPrice = document.getElementById('maxPrice').value.trim();
+        if (minPrice) params.set('min_price', minPrice);
+        if (maxPrice) params.set('max_price', maxPrice);
+
+        // Correct Mileage IDs
+        const minMileage = document.getElementById('minMileage').value.trim();
+        const maxMileage = document.getElementById('maxMileage').value.trim();
+        if (minMileage) params.set('min_mileage', minMileage);
+        if (maxMileage) params.set('max_mileage', maxMileage);
+
+        // Range IDs
+        const minRange = document.getElementById('minRange').value.trim();
+        const maxRange = document.getElementById('maxRange').value.trim();
+        if (minRange) params.set('min_range', minRange);
+        if (maxRange) params.set('max_range', maxRange);
+
+        // Brands
+        const selectedBrands = Array.from(document.querySelectorAll('input[name="brand"]:checked')).map(cb => cb.value);
+        if (selectedBrands.length > 0) params.set('brands', selectedBrands.join(','));
+
+        // Locations
+        const selectedLocations = Array.from(document.querySelectorAll('input[name="location"]:checked')).map(cb => cb.value);
+        if (selectedLocations.length > 0) params.set('locations', selectedLocations.join(','));
+
+        // Year
+        const selectedYear = document.getElementById('yearFilter').value;
+        if (selectedYear) params.set('year', selectedYear);
+
+        // Fuel Type (Radio)
+        const fuelTypeElement = document.querySelector('input[name="fuel_type"]:checked');
+        if (fuelTypeElement && fuelTypeElement.value) { // Check it exists and has a value
+            params.set('fuel_type', fuelTypeElement.value);
+        }
+
+        params.set('page', '1'); // Reset page
+
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        console.log("Applying filters, new URL:", newUrl);
+        window.location.href = newUrl;
+    }
+
+
+    // Apply button event listener
+    if (applyBtn) applyBtn.addEventListener('click', applyAllFilters);
+
+    // Search button event listener (applies search AND other filters)
+    if (searchBtn) searchBtn.addEventListener('click', applyAllFilters);
+
+    // Allow Enter key in search bar (applies search AND other filters)
+    if (searchInput) {
+         searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                 e.preventDefault(); // Prevent default form submission if it's inside a form
+                applyAllFilters();
+            }
+        });
+    }
+
+    // Clear button event listener
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            // Clear all filters and search, then reload
+            window.location.href = window.location.pathname; // Go back to base URL
+        });
+    }
+
+    // --- Filter Dropdown - Search within lists ---
+    function setupFilterSearch(inputId, listSelector, itemSelector) {
+        const input = document.getElementById(inputId);
+        const listContainer = document.querySelector(listSelector);
+        if (!input || !listContainer) {
+            console.warn(`Filter search setup failed for input: ${inputId}`);
+            return;
+        };
+
+        input.addEventListener('input', () => { // Use 'input' for better responsiveness
+            const filter = input.value.toLowerCase().trim();
+            const items = listContainer.querySelectorAll(itemSelector);
+            items.forEach(item => {
+                 const label = item.querySelector('span');
+                 if (label){
+                    const text = label.textContent.toLowerCase();
+                    // Show if filter is empty or text includes filter
+                    item.style.display = (filter === '' || text.includes(filter)) ? '' : 'none';
+                 } else {
+                     item.style.display = (filter === '') ? '' : 'none'; // Show if no span but filter is empty
+                 }
+            });
+        });
+    }
+    setupFilterSearch('brandSearch', '.brand-list', '.filter-item'); // Target .filter-item
+    setupFilterSearch('locationSearch', '.location-list', '.filter-item'); // Target .filter-item
+    // --- End Filter Dropdown Search ---
+
+});
+</script>
+{% endblock %}

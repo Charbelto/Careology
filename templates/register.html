@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-container">
+        <h2>Register</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('register') }}" class="auth-form">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required minlength="8">
+            </div>
+
+            <button type="submit" class="primary">Register</button>
+        </form>
+
+        <div class="auth-links">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+.auth-page {
+    min-height: calc(100vh - 60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-lg);
+    background: var(--background);
+}
+
+.auth-container {
+    background: white;
+    padding: var(--space-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-container h2 {
+    margin-bottom: var(--space-lg);
+    text-align: center;
+    color: var(--text);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.auth-form button {
+    margin-top: var(--space-md);
+}
+
+.auth-links {
+    margin-top: var(--space-lg);
+    text-align: center;
+}
+
+.auth-links a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}

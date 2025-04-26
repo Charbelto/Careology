@@ -1,0 +1,29 @@
+<div class="car-list">
+  {% for car in cars %}
+  <div class="car-card">
+    <div class="car-image">
+      {% if car.image_url %}
+        {% if car.image_url.startswith('http') %}
+          <img src="{{ car.image_url }}" alt="{{ car.name }} image" style="width:100%;height:auto;max-height:180px;object-fit:cover;">
+        {% else %}
+          <img src="{{ url_for('static', filename=car.image_url) }}" alt="{{ car.name }} image" style="width:100%;height:auto;max-height:180px;object-fit:cover;">
+        {% endif %}
+      {% else %}
+        <div class="placeholder-image" style="width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;">
+          <i class="fas fa-car fa-2x" style="color:#bbb;"></i>
+        </div>
+      {% endif %}
+    </div>
+    <div class="car-title">{{ car.name }} ({{ car.year }})</div>
+    <div class="car-details">
+      <span class="car-price">{{ car.price }}</span>
+      <span class="car-mileage">{{ car.mileage }}</span>
+      <span class="car-fuel">{{ car.fuel }}</span>
+      <span class="car-location">{{ car.location }}</span>
+    </div>
+    <a class="car-link" href="{{ car.link }}" target="_blank">
+      <button class="car-link-btn">View on Dubizzle</button>
+    </a>
+  </div>
+  {% endfor %}
+</div>

@@ -1,0 +1,95 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Manage Vehicles{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Manage Vehicles</h2>
+    <a href="{{ url_for('admin_add_vehicle') }}" class="btn btn-primary">
+        <i class="bx bx-plus"></i> Add New Vehicle
+    </a>
+</div>
+
+<div class="table-container">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Rental/Day</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehicle in vehicles %}
+                <tr>
+                    <td>#{{ vehicle.id }}</td>
+                    <td>
+                        {% if vehicle.images %}
+                        <img src="{{ url_for('static', filename=vehicle.images[0].image_path) }}" 
+                             alt="{{ vehicle.title }}" 
+                             class="img-thumbnail" 
+                             style="width: 50px; height: 50px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center" 
+                             style="width: 50px; height: 50px;">
+                            <i class="bx bx-camera"></i>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>{{ vehicle.title }}</td>
+                    <td>${{ vehicle.price | number_format }}</td>
+                    <td>${{ vehicle.rental_price_per_day | number_format }}</td>
+                    <td>
+                        <span class="badge bg-{{ 'success' if vehicle.status == 'available' else 'warning' }}">
+                            {{ vehicle.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{{ url_for('admin_edit_vehicle', vehicle_id=vehicle.id) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bx bx-edit"></i>
+                            </a>
+                            <button type="button" 
+                                    class="btn btn-sm btn-outline-danger" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#deleteModal{{ vehicle.id }}">
+                                <i class="bx bx-trash"></i>
+                            </button>
+                        </div>
+
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal{{ vehicle.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirm Delete</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete "{{ vehicle.title }}"?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <form action="{{ url_for('admin_delete_vehicle', vehicle_id=vehicle.id) }}" 
+                                              method="POST" 
+                                              class="d-inline">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 

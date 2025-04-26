@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}{{ car.get('Car Name', 'Car Details') }} - Careology{% endblock %}
+
+{% block content %}
+<div class="car-details-container">
+    <div class="car-details-header">
+        <h1>{{ car.get('Car Name', 'Car Details') }}</h1>
+        <div class="car-price">
+            <span class="price-label">Price:</span>
+            <span class="price-value">USD {{ car.get('price', '0') }}</span>
+            {% if car.get('rental_price_per_day') %}
+            <span class="daily-price">${{ car.get('rental_price_per_day') }} / day</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="car-details-grid">
+        <div class="car-images">
+            {% if car.get('olx_image_url') %}
+            <img src="{{ car.get('olx_image_url') }}" alt="{{ car.get('Car Name', 'Car image') }}" class="main-image">
+            {% elif car.get('image_url') %}
+              {% if car.get('image_url').startswith('http') %}
+                <img src="{{ car.get('image_url') }}" alt="{{ car.get('Car Name', 'Car image') }}" class="main-image">
+              {% else %}
+                <img src="{{ url_for('static', filename=car.get('image_url')) }}" alt="{{ car.get('Car Name', 'Car image') }}" class="main-image">
+              {% endif %}
+            {% else %}
+            <div class="placeholder-image" style="width:100%;height:auto;max-height:300px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;font-size:64px;">
+              🚗
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="car-info">
+            <div class="info-section">
+                <h2>Quick Information</h2>
+                <div class="info-badges">
+                    {% if car.get('Year') and car.get('Year') != 'N/A' %}
+                    {# Link to index filtering by this specific year #}
+                    <a href="{{ url_for('index', year=car.get('Year')) }}" class="badge-link">
+                        <span class="badge">{{ car.get('Year') }}</span>
+                    </a>
+                    {% endif %}
+                
+                    {% if car.get('mileage') %}
+                    {# Mileage isn't usually a filter, keep as span #}
+                    <span class="badge">{{ car.get('mileage') }} km</span>
+                    {% endif %}
+                
+                    {% if car.get('Fuel Type') and car.get('Fuel Type') != 'N/A' %}
+                     {# Link to index filtering by this fuel type #}
+                    <a href="{{ url_for('index', fuel_type=car.get('Fuel Type')) }}" class="badge-link">
+                        <span class="badge">{{ car.get('Fuel Type') }}</span>
+                    </a>
+                    {% endif %}
+                
+                    {% if car.get('Location') and car.get('Location') != 'N/A' %}
+                     {# Link to index filtering by this location (using 'locations' parameter) #}
+                    <a href="{{ url_for('index', locations=car.get('Location')) }}" class="badge-link">
+                        <span class="badge">{{ car.get('Location') }}</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2>Description</h2>
+                <p class="car-description">
+                    {{ car.get('description', 'No description available.') }}
+                </p>
+            </div>
+
+            <div class="info-section">
+                <h2>Features</h2>
+                <ul class="features-list">
+                    {% for feature in car.get('features', []) %}
+                    <li>{{ feature }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="car-actions">
+                {% if car.get('booking_url') %}
+                    <a href="{{ car.get('booking_url') }}" class="btn-book" target="_blank">Book Now</a>
+                {% endif %}
+                {% if car.get('source_url') %}
+                    <a href="{{ car.get('source_url') }}" class="btn-source" target="_blank">View on Dubizzle</a>
+                {% endif %}
+                {% if is_authenticated %}
+                    <button data-car-id="{{ car.get('id') }}" class="btn-save {% if car.get('id')|string in saved_cars %}saved{% endif %}">
+                        <i class="fas fa-heart"></i>
+                        <span class="save-text">{% if car.get('id')|string in saved_cars %}Saved{% else %}Save{% endif %}</span>
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.car-details-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.car-details-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.car-details-header h1 {
+    font-size: 2rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.car-price {
+    font-size: 1.25rem;
+}
+
+.price-label {
+    color: var(--text-color-light);
+}
+
+.price-value {
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-left: 0.5rem;
+}
+
+.daily-price {
+    margin-left: 1rem;
+    font-size: 1rem;
+    color: var(--text-color-light);
+}
+
+.car-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.car-images {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.main-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.car-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.info-section {
+    background: var(--background-color-light);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+.info-section h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.info-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.badge {
+    padding: 0.5rem 1rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.car-description {
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+.features-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+}
+
+.features-list li {
+    padding: 0.5rem;
+    background: var(--background-color);
+    border-radius: 4px;
+    color: var(--text-color);
+}
+
+.car-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn-book,
+.btn-source,
+.btn-save {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.btn-book {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.btn-book:hover {
+    background: var(--primary-color-dark);
+}
+
+.btn-source {
+    background: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-source:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-save {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-save:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-save.saved {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .car-details-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .car-actions {
+        flex-direction: column;
+    }
+    
+    .btn-book,
+    .btn-source,
+    .btn-save {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const saveButton = document.querySelector('.btn-save');
+    if (saveButton) {
+        saveButton.addEventListener('click', function() {
+            const carId = this.dataset.carId;
+            toggleSave(carId);
+        });
+    }
+});
+
+function toggleSave(carId) {
+    const button = document.querySelector('.btn-save');
+    const isSaved = button.classList.contains('saved');
+    const endpoint = isSaved ? `/car/${carId}/unsave` : `/car/${carId}/save`;
+
+    fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            button.classList.toggle('saved');
+            const saveText = button.querySelector('.save-text');
+            saveText.textContent = isSaved ? 'Save' : 'Saved';
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}

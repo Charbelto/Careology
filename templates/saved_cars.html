@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Saved Cars - Careology{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="section-header">
+        <h1>Saved Cars</h1>
+        <p class="results-count">{{ cars|length }} car(s) saved</p>
+    </div>
+
+    {% if cars %}
+        <div class="car-grid">
+            {% for car in cars %}
+                <div class="car-card">
+                    <div class="car-image">
+                      {% if 'image_url' in car and car['image_url'] %}
+                        {% if car['image_url'].startswith('http') %}
+                          <img src="{{ car['image_url'] }}" alt="{{ car['Car Name'] }} image" style="width:100%;height:auto;max-height:180px;object-fit:cover;">
+                        {% else %}
+                          <img src="{{ url_for('static', filename=car['image_url']) }}" alt="{{ car['Car Name'] }} image" style="width:100%;height:auto;max-height:180px;object-fit:cover;">
+                        {% endif %}
+                      {% elif 'olx_image_url' in car and car['olx_image_url'] %}
+                        <img src="{{ car['olx_image_url'] }}" alt="{{ car['Car Name'] }} image" style="width:100%;height:auto;max-height:180px;object-fit:cover;">
+                      {% else %}
+                        <div class="placeholder-image" style="width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;font-size:48px;">🚗</div>
+                      {% endif %}
+                    </div>
+                    <div class="car-details">
+                        <h2 class="car-name">{{ car.Car Name }}</h2>
+                        <div class="car-info">
+                            <span><i class="fas fa-calendar"></i> {{ car.Year }}</span>
+                            <span><i class="fas fa-tachometer-alt"></i> {{ car.mileage }} km</span>
+                            <span><i class="fas fa-gas-pump"></i> {{ car.Fuel Type }}</span>
+                        </div>
+                        <div class="car-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ car.Location }}
+                        </div>
+                        <div class="car-price">
+                            <span class="price">USD {{ car.price }}</span>
+                            <span class="daily-rate">{{ car.rental_price_per_day }}/day</span>
+                        </div>
+                        <div class="car-actions">
+                            <a href="{{ url_for('car_details', car_id=car.id) }}" class="btn-details">View Details</a>
+                            <button onclick="unsaveCar('{{ car.id }}')" class="btn-source">
+                                <i class="fas fa-heart"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-saved-cars">
+            <i class="fas fa-heart"></i>
+            <h2>No Saved Cars</h2>
+            <p>You haven't saved any cars yet. Browse our collection and save the ones you like!</p>
+            <a href="{{ url_for('index') }}" class="browse-cars-btn">Browse Cars</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function unsaveCar(carId) {
+    fetch(`/car/${carId}/unsave`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Remove the car card from the page
+            const carCard = document.querySelector(`[data-car-id="${carId}"]`);
+            if (carCard) {
+                carCard.remove();
+            }
+            // Reload the page to update the count and layout
+            window.location.reload();
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+
+<style>
+.section-header {
+    margin: 2rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.section-header h1 {
+    font-size: 2rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.no-saved-cars {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--card-background);
+    border-radius: 12px;
+    margin: 2rem 0;
+}
+
+.no-saved-cars i {
+    font-size: 4rem;
+    color: #e0e0e0;
+    margin-bottom: 1rem;
+}
+
+.no-saved-cars h2 {
+    font-size: 1.5rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.no-saved-cars p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.browse-cars-btn {
+    display: inline-block;
+    padding: 0.875rem 2rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.browse-cars-btn:hover {
+    background: var(--primary-hover);
+}
+</style>
+{% endblock %}

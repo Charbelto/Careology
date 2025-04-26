@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Deals - Careology{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Deals</h1>
+    <p>Check out our latest car deals!</p>
+    {% if deals and deals|length > 0 %}
+    <div class="deals-grid">
+        {% for car in deals %}
+        <div class="deal-card">
+            <div class="deal-image">
+                {% if car.images and car.images|length > 0 %}
+                    {% if car.images[0].image_path.startswith('http') %}
+                      <img src="{{ car.images[0].image_path }}" alt="{{ car.title }}">
+                    {% else %}
+                      <img src="{{ url_for('static', filename=car.images[0].image_path) }}" alt="{{ car.title }}">
+                    {% endif %}
+                {% else %}
+                    <div class="placeholder-image" style="width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;font-size:48px;">🚗</div>
+                {% endif %}
+            </div>
+            <div class="deal-info">
+                <h2>{{ car.title }}</h2>
+                <div class="deal-meta">
+                    <span class="badge">{{ car.year }}</span>
+                    <span class="badge">{{ car.transmission }}</span>
+                    <span class="badge">{{ car.fuel_type }}</span>
+                </div>
+                <div class="deal-price">
+                    <span class="price-label">Price:</span>
+                    <span class="price-value">USD {{ '%.0f'|format(car.price) }}</span>
+                    <span class="daily-price">${{ '%.0f'|format(car.rental_price_per_day) }} / day</span>
+                </div>
+                <p class="deal-description">{{ car.description[:100] }}{% if car.description and car.description|length > 100 %}...{% endif %}</p>
+                <div class="deal-actions">
+                    <a href="{{ url_for('car_details', car_id=car.id) }}" class="btn btn-primary">View</a>
+                    <a href="#" class="btn btn-save">Save</a>
+                    <a href="{{ url_for('rent_car', car_id=car.id) }}" class="btn btn-book">Book</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-4">No deals available at the moment. Please check back later!</div>
+    {% endif %}
+</div>
+<style>
+.deals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+.deal-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s;
+}
+.deal-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+}
+.deal-image img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+.deal-info {
+    padding: 1.2rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.deal-meta {
+    margin-bottom: 0.5rem;
+}
+.badge {
+    display: inline-block;
+    background: var(--primary-color, #007bff);
+    color: #fff;
+    border-radius: 12px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.85rem;
+    margin-right: 0.4rem;
+}
+.deal-price {
+    margin: 0.7rem 0;
+    font-size: 1.1rem;
+}
+.price-label {
+    color: #888;
+    margin-right: 0.3rem;
+}
+.price-value {
+    color: var(--primary-color, #007bff);
+    font-weight: bold;
+    margin-right: 0.7rem;
+}
+.daily-price {
+    color: #28a745;
+    font-size: 0.95rem;
+}
+.deal-description {
+    color: #444;
+    margin-bottom: 1rem;
+    flex: 1;
+}
+.deal-actions {
+    display: flex;
+    gap: 0.7rem;
+}
+.btn {
+    padding: 0.5rem 1.1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+.btn-primary {
+    background: var(--primary-color, #007bff);
+    color: #fff;
+}
+.btn-primary:hover {
+    background: #0056b3;
+}
+.btn-save {
+    background: #f8f9fa;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+.btn-save:hover {
+    background: #e2e6ea;
+}
+.btn-book {
+    background: #28a745;
+    color: #fff;
+}
+.btn-book:hover {
+    background: #218838;
+}
+</style>
+{% endblock %}

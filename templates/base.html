@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Find and compare cars for sale and rent in Dubai">
+    <title>{% block title %}Careology - Find Your Perfect Car{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/common.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo-container">
+                <a href="{{ url_for('index') }}" class="logo">
+                    <i class="fas fa-car-side"></i>
+                    <span>Careology</span>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                        <i class="fas fa-home"></i> Home
+                    </a></li>
+                    <li><a href="{{ url_for('deals') }}" class="nav-link {% if request.endpoint == 'deals' %}active{% endif %}">
+                        <i class="fas fa-tag"></i> Deals
+                    </a></li>
+                    <li><a href="{{ url_for('about') }}" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">
+                        <i class="fas fa-info-circle"></i> About
+                    </a></li>
+                    <li><a href="{{ url_for('contact') }}" class="nav-link {% if request.endpoint == 'contact' %}active{% endif %}">
+                        <i class="fas fa-envelope"></i> Contact
+                    </a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                {% if session.get('user') %}
+                    <div class="user-menu">
+                        <button class="user-menu-btn" id="userMenuBtn">
+                            <i class="fas fa-user-circle"></i>
+                            <span>{{ session.user.name }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-menu-dropdown" id="userMenuDropdown">
+                            <div class="user-menu-header">
+                                <div class="user-avatar">
+                                    {% if session.user.avatar_url %}
+                                        <img src="{{ session.user.avatar_url }}" alt="{{ session.user.name }}" />
+                                    {% else %}
+                                        <div class="avatar-placeholder">{{ session.user.name[0] | upper }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="user-info">
+                                    <h3>{{ session.user.name }}</h3>
+                                    <p>{{ session.user.email }}</p>
+                                </div>
+                            </div>
+                            <div class="user-menu-content">
+                                <a href="{{ url_for('profile') }}" class="menu-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>My Profile</span>
+                                </a>
+                                <div class="menu-item disabled">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Settings</span>
+                                </div>
+                                <div class="menu-item disabled">
+                                    <i class="fas fa-heart"></i>
+                                    <span>Saved Cars</span>
+                                </div>
+                                <div class="menu-divider"></div>
+                                <a href="{{ url_for('logout') }}" class="menu-item text-danger">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Logout</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="auth-btn login-link">Login</a>
+                    <a href="{{ url_for('signup') }}" class="auth-btn signup-link">Sign Up</a>
+                {% endif %}
+                <button class="theme-toggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="site-main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <button type="button" class="close-alert">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <p>&copy; 2024 Careology. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <button class="chat-button" id="chatButton">
+            <i class="fas fa-comments"></i> 🤖
+        </button>
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <h3 class="chat-title">Careology</h3>
+                <button class="close-chat" id="closeChat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    Hello! I'm Careology, your car dealership assistant. How can I help you find the perfect car today?
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" class="message-input" id="messageInput" placeholder="Type your message...">
+                <button class="send-message" id="sendMessage">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+    <script>
+        // Theme toggle functionality
+        document.querySelector('.theme-toggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-theme');
+            const icon = this.querySelector('i');
+            if (document.body.classList.contains('dark-theme')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+            document.querySelector('.main-nav').classList.toggle('active');
+        });
+
+        // Flash message handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const closeButtons = document.querySelectorAll('.close-alert');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.parentElement.remove();
+                });
+            });
+
+            // Auto-hide flash messages after 5 seconds
+            const flashMessages = document.querySelectorAll('.alert');
+            flashMessages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    setTimeout(() => message.remove(), 300);
+                }, 5000);
+            });
+        });
+
+        // User menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const userMenuBtn = document.getElementById('userMenuBtn');
+            const userMenuDropdown = document.getElementById('userMenuDropdown');
+
+            if (userMenuBtn && userMenuDropdown) {
+                userMenuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userMenuDropdown.classList.toggle('show');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                        userMenuDropdown.classList.remove('show');
+                    }
+                });
+
+                // Prevent dropdown from closing when clicking inside it
+                userMenuDropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

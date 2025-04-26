@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Careology{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Welcome Back</h1>
+            <p>Sign in to your account to continue</p>
+        </div>
+        
+        <form class="auth-form" method="POST" action="{{ url_for('login') }}">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {% if category == 'error' %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            {% else %}
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            {% endif %}
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required 
+                       placeholder="Enter your email"
+                       autocomplete="email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-field">
+                    <input type="password" id="password" name="password" required 
+                           placeholder="Enter your password"
+                           autocomplete="current-password">
+                    <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <button type="submit" class="auth-submit">Sign In</button>
+            
+            <div class="form-footer">
+                <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></p>
+            </div>
+            
+            <div class="auth-divider">
+                <span>or continue with</span>
+            </div>
+            
+            <div class="social-auth">
+                <button type="button" class="social-btn">
+                    <img src="{{ url_for('static', filename='images/google.svg') }}" alt="Google" width="20">
+                    Continue with Google
+                </button>
+                <button type="button" class="social-btn">
+                    <img src="{{ url_for('static', filename='images/facebook.svg') }}" alt="Facebook" width="20">
+                    Continue with Facebook
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password toggle functionality
+    const togglePassword = document.querySelector('.toggle-password');
+    const passwordInput = document.querySelector('#password');
+
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+    }
+
+    // Auto-hide alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            if (alert && alert.parentElement) {
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateY(-10px)';
+                setTimeout(() => alert.remove(), 300);
+            }
+        }, 5000);
+    });
+});
+</script>
+{% endblock %}

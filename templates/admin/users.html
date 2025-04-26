@@ -1,0 +1,144 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Users Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Users Management</h1>
+    </div>
+
+    <div class="table-container">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Created At</th>
+                    <th>Last Login</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>#{{ user.id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_update_user_role', user_id=user.id) }}" class="d-flex gap-2">
+                            <select name="role_id" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">No Role</option>
+                                {% for role in roles %}
+                                <option value="{{ role.id }}" {% if user.role and user.role.id == role.id %}selected{% endif %}>
+                                    {{ role.name|title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                        </form>
+                    </td>
+                    <td>{{ user.created_at|datetime }}</td>
+                    <td>{{ user.last_login|datetime if user.last_login else 'Never' }}</td>
+                    <td>
+                        <span class="badge bg-{{ 'success' if user.is_active else 'danger' }}">
+                            {{ 'Active' if user.is_active else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-info" onclick="viewUserDetails({{ user.id }})">
+                                View
+                            </button>
+                            {% if user.is_active %}
+                            <button type="button" class="btn btn-sm btn-warning" onclick="deactivateUser({{ user.id }})">
+                                Deactivate
+                            </button>
+                            {% else %}
+                            <button type="button" class="btn btn-sm btn-success" onclick="activateUser({{ user.id }})">
+                                Activate
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- User Details Modal -->
+<div class="modal fade" id="userDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">User Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="userDetailsContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function viewUserDetails(userId) {
+    // Implement user details view
+    const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
+    modal.show();
+}
+
+function deactivateUser(userId) {
+    if (confirm('Are you sure you want to deactivate this user?')) {
+        fetch(`/admin/users/${userId}/deactivate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to deactivate user');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to deactivate user');
+        });
+    }
+}
+
+function activateUser(userId) {
+    if (confirm('Are you sure you want to activate this user?')) {
+        fetch(`/admin/users/${userId}/activate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.error || 'Failed to activate user');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to activate user');
+        });
+    }
+}
+</script>
+{% endblock %} 

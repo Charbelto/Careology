@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - Careology{% endblock %}
+
+{% block content %}
+<div class="container contact-container">
+    <h1>Contact Us</h1>
+    <p>Have a question, suggestion, or want to partner with us? Fill out the form below and our team will get back to you soon.</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form method="post" action="{{ url_for('contact') }}" class="contact-form">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" class="form-control" required value="{{ request.form.name or '' }}">
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" class="form-control" required value="{{ request.form.email or '' }}">
+        </div>
+        <div class="form-group">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" name="subject" class="form-control" required value="{{ request.form.subject or '' }}">
+        </div>
+        <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" class="form-control" rows="5" required>{{ request.form.message or '' }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send Message</button>
+    </form>
+    <div class="contact-info mt-4">
+        <h3>Other Ways to Reach Us</h3>
+        <ul>
+            <li><i class="fas fa-envelope"></i> Email: <a href="mailto:careologyfyp@outlook.com">careologyfyp@outlook.com</a></li>
+            <li><i class="fas fa-phone"></i> Phone: +961 81 289 227</li>
+            <li><i class="fas fa-map-marker-alt"></i> Address: Beirut, Lebanon</li>
+        </ul>
+    </div>
+</div>
+<style>
+.contact-container { max-width: 600px; margin: 0 auto; padding: 2rem 0; }
+.contact-form .form-group { margin-bottom: 1.2rem; }
+.contact-form label { font-weight: 500; margin-bottom: 0.4rem; display: block; }
+.contact-form .form-control { width: 100%; padding: 0.6rem; border-radius: 5px; border: 1px solid #ccc; font-size: 1rem; }
+.contact-form textarea.form-control { resize: vertical; }
+.btn-primary { background: var(--primary-color, #007bff); color: #fff; border: none; padding: 0.7rem 1.5rem; border-radius: 5px; font-size: 1rem; }
+.btn-primary:hover { background: #0056b3; }
+.alert { padding: 0.8rem 1.2rem; border-radius: 5px; margin-bottom: 1rem; }
+.alert-success { background: #d4edda; color: #155724; }
+.alert-danger { background: #f8d7da; color: #721c24; }
+.contact-info { margin-top: 2rem; }
+.contact-info ul { list-style: none; padding: 0; }
+.contact-info li { margin-bottom: 0.7rem; font-size: 1.05rem; }
+.contact-info i { margin-right: 0.6rem; color: var(--primary-color, #007bff); }
+</style>
+{% endblock %}

@@ -1,0 +1,290 @@
+/* Chatbot Styles */
+:root {
+    --chat-primary: #2563eb;
+    --chat-secondary: #1e293b;
+    --chat-bg: #ffffff;
+    --chat-text: #1e293b;
+    --chat-border: #e2e8f0;
+    --chat-user-bg: #e2f7cb;
+    --chat-bot-bg: #f0f0f0;
+    --chat-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.chatbot-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--chat-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: var(--chat-shadow);
+    transition: transform 0.2s ease;
+}
+
+.chatbot-button:hover {
+    transform: scale(1.05);
+}
+
+.chatbot-interface {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 450px; /* Increased width */
+    height: 600px; /* Increased height */
+    background-color: var(--chat-bg);
+    border-radius: 12px;
+    box-shadow: var(--chat-shadow);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.chatbot-header {
+    background-color: var(--chat-primary);
+    color: white;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 500;
+}
+
+.close-chat {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+}
+
+.close-chat:hover {
+    opacity: 0.8;
+}
+
+.chat-messages {
+    flex-grow: 1;
+    padding: 15px; /* Increased padding */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.chat-message {
+    max-width: 80%;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.chat-message.user {
+    background-color: var(--chat-user-bg);
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+}
+
+.chat-message.bot {
+    background-color: var(--chat-bot-bg);
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+}
+
+.chat-message.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.chat-message.loading {
+    background-color: var(--chat-bot-bg);
+    color: var(--chat-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.loading-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.loading-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: currentColor;
+    animation: loading 1s infinite;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes loading {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+.chat-input-container {
+    padding: 16px;
+    border-top: 1px solid var(--chat-border);
+    display: flex;
+    gap: 8px;
+}
+
+.chat-input-container input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid var(--chat-border);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.chat-input-container input:focus {
+    outline: none;
+    border-color: var(--chat-primary);
+}
+
+.chat-input-container button {
+    background-color: var(--chat-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.chat-input-container button:hover {
+    background-color: #1d4ed8;
+}
+
+@media (max-width: 768px) {
+    .chatbot-interface {
+        width: calc(100% - 40px);
+        height: 60vh;
+        bottom: 90px;
+    }
+/* Car List Button Styles */
+.car-link-btn {
+    background: linear-gradient(90deg, #2563eb 60%, #1e40af 100%);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 22px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.10);
+    margin-top: 6px;
+    transition: background 0.18s, transform 0.12s;
+    outline: none;
+    display: inline-block;
+    letter-spacing: 0.01em;
+}
+
+.car-link-btn:hover, .car-link-btn:focus {
+    background: linear-gradient(90deg, #1d4ed8 60%, #1e293b 100%);
+    transform: translateY(-2px) scale(1.04);
+    text-decoration: underline;
+}
+/* Car List Styles for Chatbot */
+.car-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 8px;
+}
+
+.car-card {
+    background: #fff;
+    border: 1px solid var(--chat-border);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(30, 41, 59, 0.06);
+    padding: 18px 20px 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: box-shadow 0.2s;
+}
+
+.car-card:hover {
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.10);
+    border-color: var(--chat-primary);
+}
+
+.car-title {
+    font-size: 1.08em;
+    font-weight: 600;
+    color: var(--chat-primary);
+    margin-bottom: 4px;
+}
+
+.car-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 0.98em;
+    color: var(--chat-secondary);
+    margin-bottom: 6px;
+}
+
+.car-price {
+    font-weight: 600;
+    color: #059669;
+}
+
+.car-mileage,
+.car-fuel,
+.car-location {
+    color: #64748b;
+}
+
+.car-link {
+    align-self: flex-start;
+    background: var(--chat-primary);
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.97em;
+    font-weight: 500;
+    transition: background 0.18s;
+    margin-top: 4px;
+}
+
+.car-link:hover {
+    background: #1d4ed8;
+    text-decoration: underline;
+}
+}

@@ -1,0 +1,175 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3">Analytics Dashboard</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- User Engagement Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">User Engagement</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-column">
+                        <div class="metric">
+                            <span class="metric-label">Daily Active Users</span>
+                            <span class="metric-value">{{ engagement_metrics.daily_active_users }}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Weekly Active Users</span>
+                            <span class="metric-value">{{ engagement_metrics.weekly_active_users }}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Monthly Active Users</span>
+                            <span class="metric-value">{{ engagement_metrics.monthly_active_users }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Growth Chart -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">User Growth Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="userGrowthChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Activity Distribution -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Activity Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="activityDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Table -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Activity Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Count</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in activity_distribution %}
+                                <tr>
+                                    <td>{{ activity.action }}</td>
+                                    <td>{{ activity.count }}</td>
+                                    <td>{{ (activity.count / activity_distribution|sum(attribute='count') * 100)|round(1) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// User Growth Chart
+const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+new Chart(userGrowthCtx, {
+    type: 'line',
+    data: {
+        labels: {{ user_growth|map(attribute='date')|list|tojson }},
+        datasets: [{
+            label: 'New Users',
+            data: {{ user_growth|map(attribute='count')|list|tojson }},
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Activity Distribution Chart
+const activityDistCtx = document.getElementById('activityDistributionChart').getContext('2d');
+new Chart(activityDistCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ activity_distribution|map(attribute='action')|list|tojson }},
+        datasets: [{
+            data: {{ activity_distribution|map(attribute='count')|list|tojson }},
+            backgroundColor: [
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 205, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+</script>
+
+<style>
+.metric {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.metric:last-child {
+    border-bottom: none;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #495057;
+}
+
+canvas {
+    min-height: 300px;
+}
+</style>
+{% endblock %} 
