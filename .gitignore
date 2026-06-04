@@ -36,3 +36,10 @@ env/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
+
+# Additional polish rules
+# .NET standard gitignore
+bin/
+obj/
+*.userosscache
+.vs/
